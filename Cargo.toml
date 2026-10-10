@@ -2,7 +2,7 @@
 name = "truehd-atmos-ffi"
 version = "0.1.0"
 edition = "2024"
-license = "Apache-2.0"
+license = "MIT"
 description = "C-callable Dolby TrueHD / Atmos (object presentation) decoder for Apple platforms, built on the truehd crate"
 publish = false
 rust-version = "1.88"

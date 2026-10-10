@@ -87,8 +87,10 @@ Measured on an M4 Max, one thread, CPU time: 28× realtime for a 16-element Atmo
 
 ## License
 
-Apache License 2.0, see [LICENSE](LICENSE) and [NOTICE](NOTICE) for the included `truehd` and
-`oamd` crates and the Rust dependencies compiled into the library.
+The code in this repository is MIT, see [LICENSE](LICENSE). The built library also contains the
+`truehd` and `oamd` crates, which are Apache-2.0 ([LICENSE-APACHE](LICENSE-APACHE)), and other Rust
+dependencies; [NOTICE](NOTICE) lists them, and anyone redistributing the xcframework must keep
+both files with it.
 
 Dolby, Dolby Atmos and Dolby TrueHD are trademarks of Dolby Laboratories. This project is not
 affiliated with or endorsed by Dolby Laboratories.

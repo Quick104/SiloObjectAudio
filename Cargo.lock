@@ -101,7 +101,7 @@ dependencies = [
 [[package]]
 name = "truehd"
 version = "0.7.2"
-source = "git+https://github.com/truehdd/truehdd?rev=45eff984e3e5ab0cf36a47d12148b1628c38bda4#45eff984e3e5ab0cf36a47d12148b1628c38bda4"
+source = "git+https://github.com/superuser404notfound/truehdd?rev=9adbb4a71442bf74fccde3b6259b33933ca779e5#9adbb4a71442bf74fccde3b6259b33933ca779e5"
 dependencies = [
  "anyhow",
  "bitstream-io",

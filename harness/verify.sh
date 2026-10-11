@@ -53,11 +53,15 @@ fi
     curl -fsSL -o "$SAMPLES/fate-atmos.thd" https://fate-suite.ffmpeg.org/truehd/atmos.thd
 
 # ---- references from truehdd -------------------------------------------------------------
+TRUEHDD_URL="$(sed -nE 's/^truehd = .*git = "([^"]+)".*/\1/p' "$CRATE/Cargo.toml")"
 TRUEHDD_REV="$(sed -nE 's/^truehd = .*rev = "([0-9a-f]+)".*/\1/p' "$CRATE/Cargo.toml")"
 if [ ! -d "$ROOT/truehdd/.git" ]; then
     echo "==> Cloning truehdd at $TRUEHDD_REV"
-    git clone --quiet https://github.com/truehdd/truehdd "$ROOT/truehdd"
+    git clone --quiet "$TRUEHDD_URL" "$ROOT/truehdd"
 fi
+# A checkout made from another remote (upstream before the pin moved to a fork) lacks the commit.
+git -C "$ROOT/truehdd" cat-file -e "$TRUEHDD_REV^{commit}" 2>/dev/null ||
+    git -C "$ROOT/truehdd" fetch --quiet "$TRUEHDD_URL" "$TRUEHDD_REV"
 git -C "$ROOT/truehdd" checkout --quiet "$TRUEHDD_REV"
 TRUEHDD="$ROOT/truehdd/target/release/truehdd"
 if [ ! -x "$TRUEHDD" ]; then

@@ -11,7 +11,10 @@ decoded objects into a speaker bed and delivers it as Apple Positional Audio, wh
 Atmos receiver as Dolby MAT and iOS renders as Spatial Audio.
 
 The decoding is the [`truehd`](https://github.com/truehdd/truehdd) crate (Apache-2.0), pinned to
-an exact commit. This repository adds the C API, an access-unit framer that reports where each
+an exact commit. Until [truehdd#42](https://github.com/truehdd/truehdd/pull/42) is merged that
+commit is in [a fork](https://github.com/superuser404notfound/truehdd): upstream plus that one
+change, which sizes the decoder's block and PCM buffers to the samples they hold (byte-identical
+output, about 30% less decode time). This repository adds the C API, an access-unit framer that reports where each
 decoded block sits in the input (needed to place audio on a timeline after a seek), OAMD update
 timing per ETSI TS 103 420 clause 5.3, and the Apple packaging.
 
@@ -22,7 +25,7 @@ the old product name.
 ## Use
 
 ```swift
-.package(url: "https://github.com/superuser404notfound/LibTrueHD", .upToNextMinor(from: "2.0.0")),
+.package(url: "https://github.com/superuser404notfound/LibTrueHD", .upToNextMinor(from: "2.2.0")),
 // target dependency:
 .product(name: "TrueHD", package: "LibTrueHD"),
 ```
@@ -84,8 +87,9 @@ presentation switches) and reads the same `.work/` (or `$TRUEHD_ATMOS_WORK`), so
 so some of its update times are 32 frames earlier than this library's; the verifier accounts for
 that difference.
 
-Measured on an M4 Max, one thread, CPU time: 28× realtime for a 16-element Atmos presentation,
-46 to 51× for 7.1.
+Measured on an M1, one thread, wall time through the C API (`cargo run --release --example
+decode_bench <file.thd>`): 29× realtime for Unfold's 16-element Atmos presentation, against 21×
+before truehdd#42.
 
 ## Limitations
 

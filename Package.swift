@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "SiloObjectAudio",
+    name: "LibTrueHD",
     platforms: [
         .iOS(.v18),
         .tvOS(.v18),
@@ -11,9 +11,9 @@ let package = Package(
         .visionOS(.v1),
     ],
     products: [
-        .library(name: "SiloObjectAudio", targets: ["SiloObjectAudio"]),
+        .library(name: "TrueHD", targets: ["TrueHD"]),
     ],
     targets: [
-        .binaryTarget(name: "SiloObjectAudio", path: "SiloObjectAudio.xcframework"),
+        .binaryTarget(name: "TrueHD", path: "TrueHD.xcframework"),
     ]
 )

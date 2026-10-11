@@ -7,15 +7,20 @@ use std::ptr;
 use truehd_atmos::types::*;
 use truehd_atmos::*;
 
+/// The working directory `harness/verify.sh` fills: `$TRUEHD_ATMOS_WORK`, default `.work/`.
+fn work_dir() -> PathBuf {
+    std::env::var_os("TRUEHD_ATMOS_WORK")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(".work"))
+}
+
 fn asset(name: &str) -> Vec<u8> {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../truehdd/truehd/tests/assets")
-        .join(name);
+    let path = work_dir().join("truehdd/truehd/tests/assets").join(name);
     std::fs::read(&path).unwrap_or_else(|e| panic!("{}: {e}", path.display()))
 }
 
 fn sample(name: &str) -> Option<Vec<u8>> {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../samples").join(name);
+    let path = work_dir().join("samples").join(name);
     std::fs::read(path).ok()
 }
 

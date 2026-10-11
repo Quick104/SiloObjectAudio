@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verify.sh - verify SiloObjectAudio.xcframework against truehdd's own decoder.
+# verify.sh - verify TrueHD.xcframework against truehdd's own decoder.
 #
 # Usage: harness/verify.sh        (after ./build.sh)
 #
@@ -13,7 +13,7 @@
 # 3. Builds the C harness against the xcframework's macOS slice and runs it: bit-exact PCM,
 #    object metadata against truehdd's .atmos.metadata, reset/seek, arbitrary chunking.
 # 4. Links a small C program against every other slice, and compiles and runs a Swift program
-#    through the module map (`import SiloObjectAudio`).
+#    through the module map (`import TrueHD`).
 # Requires Homebrew ffmpeg (libavformat for demuxing, the ffmpeg CLI for sample extraction).
 
 set -euo pipefail
@@ -23,7 +23,7 @@ CRATE="$(dirname "$HERE")"
 ROOT="${TRUEHD_ATMOS_WORK:-$CRATE/.work}"
 SAMPLES="$ROOT/samples"
 REF="$ROOT/ref"
-XCFW="$CRATE/SiloObjectAudio.xcframework"
+XCFW="$CRATE/TrueHD.xcframework"
 OUT="$CRATE/build/verify"
 ASSETS="$ROOT/truehdd/truehd/tests/assets"
 for dir in /opt/homebrew/opt/rustup/bin "$HOME/.cargo/bin"; do
@@ -80,7 +80,7 @@ done
 # ---- harness against the macOS slice ------------------------------------------------------
 MAC="$XCFW/macos-arm64_x86_64"
 clang -std=c11 -O2 -Wall -Wextra -Wno-unused-parameter -mmacosx-version-min=15.0 \
-    -I"$MAC/Headers/SiloObjectAudio" $(pkg-config --cflags libavformat) \
+    -I"$MAC/Headers/TrueHD" $(pkg-config --cflags libavformat) \
     -o "$OUT/harness" "$HERE/harness.c" "$MAC/libtruehd_atmos.a" \
     $(pkg-config --libs libavformat libavcodec libavutil)
 H="$OUT/harness"
@@ -149,7 +149,7 @@ for spec in "ios-arm64 arm64-apple-ios18.0 iphoneos" \
     "xros-arm64-simulator arm64-apple-xros2.0-simulator xrsimulator" \
     "macos-arm64_x86_64 x86_64-apple-macos15.0 macosx"; do
     read -r slice triple sdk <<<"$spec"
-    if xcrun --sdk "$sdk" clang -target "$triple" -I"$XCFW/$slice/Headers/SiloObjectAudio" "$OUT/link.c" \
+    if xcrun --sdk "$sdk" clang -target "$triple" -I"$XCFW/$slice/Headers/TrueHD" "$OUT/link.c" \
         "$XCFW/$slice/libtruehd_atmos.a" -o "$OUT/link-$slice" 2>"$OUT/link-$slice.log"; then
         echo "  $slice ($triple): links"
     else
@@ -165,7 +165,7 @@ echo
 echo "======== Swift through the module map"
 cat >"$OUT/swift_check.swift" <<'EOF'
 import Foundation
-import SiloObjectAudio
+import TrueHD
 
 let data = try Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1]))
 guard let decoder = truehd_atmos_decoder_create(TRUEHD_ATMOS_PRESENTATION_HIGHEST) else { exit(1) }
@@ -182,7 +182,7 @@ _ = truehd_atmos_decoder_get_stream_info(decoder, &info)
 print("Swift: \(blocks) blocks, p\(info.selected_presentation) \(block.channel_count) ch @ \(info.sample_rate) Hz, \(updates) metadata updates, selftest \(truehd_atmos_selftest())")
 exit(blocks > 0 ? 0 : 1)
 EOF
-if xcrun swiftc -O -I "$MAC/Headers/SiloObjectAudio" "$OUT/swift_check.swift" "$MAC/libtruehd_atmos.a" \
+if xcrun swiftc -O -I "$MAC/Headers/TrueHD" "$OUT/swift_check.swift" "$MAC/libtruehd_atmos.a" \
     -o "$OUT/swift_check" 2>"$OUT/swift.log" && "$OUT/swift_check" "$ASSETS/fba_atmos_obj.mlp" 2>/dev/null; then
     :
 else
@@ -198,14 +198,14 @@ fi
 if [ "${VERIFY_TVOS_SIM:-0}" = 1 ]; then
     echo
     echo "======== tvOS simulator (tvos-arm64-simulator slice) vs macOS slice"
-    xcrun clang -O2 -mmacosx-version-min=15.0 -I"$MAC/Headers/SiloObjectAudio" "$HERE/checksum.c" \
+    xcrun clang -O2 -mmacosx-version-min=15.0 -I"$MAC/Headers/TrueHD" "$HERE/checksum.c" \
         "$MAC/libtruehd_atmos.a" -o "$OUT/checksum-macos"
     xcrun --sdk appletvsimulator clang -O2 -target arm64-apple-tvos18.0-simulator \
-        -I"$XCFW/tvos-arm64-simulator/Headers/SiloObjectAudio" "$HERE/checksum.c" \
+        -I"$XCFW/tvos-arm64-simulator/Headers/TrueHD" "$HERE/checksum.c" \
         "$XCFW/tvos-arm64-simulator/libtruehd_atmos.a" -o "$OUT/checksum-tvos-sim"
     runtime="$(xcrun simctl list runtimes | awk '/^tvOS/ {id=$NF} END {print id}')"
     devtype="$(xcrun simctl list devicetypes | grep -o 'com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K[^)]*' | head -1)"
-    udid="$(xcrun simctl create "SiloObjectAudio verify" "$devtype" "$runtime")"
+    udid="$(xcrun simctl create "LibTrueHD verify" "$devtype" "$runtime")"
     trap 'xcrun simctl shutdown "$udid" >/dev/null 2>&1; xcrun simctl delete "$udid" >/dev/null 2>&1' EXIT
     xcrun simctl boot "$udid"
     host="$("$OUT/checksum-macos" "$SAMPLES/dolby-unfold.thd" 2>/dev/null)"

@@ -1,4 +1,0 @@
-module SiloObjectAudio {
-    header "truehd_atmos.h"
-    export *
-}

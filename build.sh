@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# build.sh - build SiloObjectAudio.xcframework (static library + C header + module map) from scratch.
+# build.sh - build TrueHD.xcframework (static library + C header + module map) from scratch.
 #
 # Usage: ./build.sh
-# Output: ./SiloObjectAudio.xcframework with the slices
+# Output: ./TrueHD.xcframework with the slices
 #   macos-arm64_x86_64        aarch64-apple-darwin + x86_64-apple-darwin (lipo)   macOS 15.0+
 #   ios-arm64                 aarch64-apple-ios                                   iOS 18.0+
 #   ios-arm64-simulator       aarch64-apple-ios-sim                               iOS 18.0+
@@ -24,7 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="$SCRIPT_DIR/build"
 CARGO_DIR="$BUILD_DIR/cargo"
 STAGE_DIR="$BUILD_DIR/xcfw_stage"
-XCFW_OUT="$SCRIPT_DIR/SiloObjectAudio.xcframework"
+XCFW_OUT="$SCRIPT_DIR/TrueHD.xcframework"
 LIB=libtruehd_atmos.a
 
 # rustup's cargo proxy (Homebrew's rustup keeps it outside ~/.cargo/bin).
@@ -69,11 +69,11 @@ for target in "${TARGETS[@]}"; do
 done
 
 rm -rf "$STAGE_DIR"
-# Headers live in a SiloObjectAudio/ subdirectory: SwiftPM copies every binary target's headers into
+# Headers live in a TrueHD/ subdirectory: SwiftPM copies every binary target's headers into
 # one shared include/ directory, so a module.modulemap at the root collides with any other
 # xcframework that does the same (LibDovi's Dovi.xcframework does).
-mkdir -p "$STAGE_DIR/headers/SiloObjectAudio"
-cp include/truehd_atmos.h include/module.modulemap "$STAGE_DIR/headers/SiloObjectAudio/"
+mkdir -p "$STAGE_DIR/headers/TrueHD"
+cp include/truehd_atmos.h include/module.modulemap "$STAGE_DIR/headers/TrueHD/"
 echo '_truehd_atmos_*' >"$STAGE_DIR/exported_symbols"
 
 # prelink <target> <arch> <ld platform> <min OS> <sdk>: prints the path of a static library
@@ -95,10 +95,10 @@ prelink() {
     ld -r -arch "$arch" \
         -platform_version "$platform" "$minos" "$(xcrun --sdk "$sdk" --show-sdk-version)" \
         -exported_symbols_list "$STAGE_DIR/exported_symbols" \
-        -o "$work/SiloObjectAudio.o" "$work"/objs/*.o 2> >(grep -v 'built for newer' >&2)
+        -o "$work/TrueHD.o" "$work"/objs/*.o 2> >(grep -v 'built for newer' >&2)
     # -S drops debug sections only; the exported entry points keep their names.
-    strip -S "$work/SiloObjectAudio.o"
-    libtool -static -o "$work/$LIB" "$work/SiloObjectAudio.o" 2>/dev/null
+    strip -S "$work/TrueHD.o"
+    libtool -static -o "$work/$LIB" "$work/TrueHD.o" 2>/dev/null
     echo "$work/$LIB"
 }
 
@@ -128,7 +128,7 @@ stage_slice xros-sim \
     "$(prelink aarch64-apple-visionos-sim arm64 xros-simulator "$XROS_DEPLOYMENT_TARGET" xrsimulator)"
 
 rm -rf "$XCFW_OUT"
-echo "==> Assembling SiloObjectAudio.xcframework"
+echo "==> Assembling TrueHD.xcframework"
 args=()
 for slice in macos ios ios-sim tvos tvos-sim xros xros-sim; do
     args+=(-library "$STAGE_DIR/$slice/$LIB" -headers "$STAGE_DIR/headers")

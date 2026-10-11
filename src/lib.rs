@@ -1,4 +1,4 @@
-//! C API of the SiloObjectAudio decoder. See `include/truehd_atmos.h` for the contract.
+//! C API of the LibTrueHD decoder. See `include/truehd_atmos.h` for the contract.
 //!
 //! Every exported function catches panics: none unwinds into C. A panic inside the decode of
 //! one access unit is recovered in `engine` like any other decode error; one caught here, at

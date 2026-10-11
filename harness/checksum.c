@@ -1,5 +1,5 @@
 /*
- * checksum - decode a raw TrueHD file with the SiloObjectAudio C API and print a digest of
+ * checksum - decode a raw TrueHD file with the LibTrueHD C API and print a digest of
  * everything the decoder produced (PCM as 24-bit integers, speakers, metadata updates).
  * Plain C with no dependencies, so the same source runs on every slice (for example in a
  * tvOS simulator via `simctl spawn`) and the digests can be compared across platforms.

@@ -1,5 +1,5 @@
 /*
- * truehd_atmos_harness - verification harness for the SiloObjectAudio C API (macOS slice).
+ * truehd_atmos_harness - verification harness for the LibTrueHD C API (macOS slice).
  *
  * Feeds a TrueHD stream to the decoder the way a player would: container input (.mka, .mkv,
  * .m2ts, .mp4) is demuxed with libavformat and pushed one AVPacket at a time; raw input (.thd,

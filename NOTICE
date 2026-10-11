@@ -1,4 +1,4 @@
-SiloObjectAudio (truehd-atmos-ffi)
+LibTrueHD (truehd-atmos-ffi)
 C API and Apple packaging of a Dolby TrueHD / Dolby Atmos decoder.
 
 This product includes software from the truehdd project

@@ -1,5 +1,5 @@
 /*
- * truehd_atmos.h - C API of the SiloObjectAudio decoder library.
+ * truehd_atmos.h - C API of the LibTrueHD decoder library.
  *
  * Decodes Dolby TrueHD (MLP FBA, and MLP FBB) bitstreams to planar float PCM, including the
  * Dolby Atmos object presentation (presentation 3) together with its object audio metadata

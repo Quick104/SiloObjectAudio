@@ -142,7 +142,8 @@ int main(void) {
 }
 EOF
 for spec in "ios-arm64 arm64-apple-ios18.0 iphoneos" \
-    "ios-arm64-simulator arm64-apple-ios18.0-simulator iphonesimulator" \
+    "ios-arm64_x86_64-simulator arm64-apple-ios18.0-simulator iphonesimulator" \
+    "ios-arm64_x86_64-simulator x86_64-apple-ios18.0-simulator iphonesimulator" \
     "tvos-arm64 arm64-apple-tvos18.0 appletvos" \
     "tvos-arm64-simulator arm64-apple-tvos18.0-simulator appletvsimulator" \
     "xros-arm64 arm64-apple-xros2.0 xros" \

@@ -5,7 +5,7 @@
 # Output: ./TrueHD.xcframework with the slices
 #   macos-arm64_x86_64        aarch64-apple-darwin + x86_64-apple-darwin (lipo)   macOS 15.0+
 #   ios-arm64                 aarch64-apple-ios                                   iOS 18.0+
-#   ios-arm64-simulator       aarch64-apple-ios-sim                               iOS 18.0+
+#   ios-arm64_x86_64-simulator aarch64-apple-ios-sim + x86_64-apple-ios (lipo)     iOS 18.0+
 #   tvos-arm64                aarch64-apple-tvos                                  tvOS 18.0+
 #   tvos-arm64-simulator      aarch64-apple-tvos-sim                              tvOS 18.0+
 #   xros-arm64                aarch64-apple-visionos                              visionOS 2.0+
@@ -16,7 +16,9 @@
 # is fetched by cargo at the commit pinned in Cargo.toml; Cargo.lock pins everything else.
 #
 # All Apple targets used are tier 2 with a prebuilt std on stable Rust, so no nightly and no
-# -Zbuild-std. Intel simulators are not built.
+# -Zbuild-std. The iOS simulator slice also carries x86_64, as LibDovi's does, because a generic
+# iOS Simulator build of a consumer links both architectures; the tvOS and visionOS simulators stay
+# arm64 only (x86_64-apple-tvos has no prebuilt std, and there is no Intel Vision Pro).
 
 set -euo pipefail
 
@@ -54,7 +56,7 @@ echo "==> $(cargo --version), $(rustc --version)"
 
 TARGETS=(
     aarch64-apple-darwin x86_64-apple-darwin
-    aarch64-apple-ios aarch64-apple-ios-sim
+    aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios
     aarch64-apple-tvos aarch64-apple-tvos-sim
     aarch64-apple-visionos aarch64-apple-visionos-sim
 )
@@ -119,7 +121,8 @@ stage_slice macos \
     "$(prelink x86_64-apple-darwin x86_64 macos "$MACOSX_DEPLOYMENT_TARGET" macosx)"
 stage_slice ios "$(prelink aarch64-apple-ios arm64 ios "$IPHONEOS_DEPLOYMENT_TARGET" iphoneos)"
 stage_slice ios-sim \
-    "$(prelink aarch64-apple-ios-sim arm64 ios-simulator "$IPHONEOS_DEPLOYMENT_TARGET" iphonesimulator)"
+    "$(prelink aarch64-apple-ios-sim arm64 ios-simulator "$IPHONEOS_DEPLOYMENT_TARGET" iphonesimulator)" \
+    "$(prelink x86_64-apple-ios x86_64 ios-simulator "$IPHONEOS_DEPLOYMENT_TARGET" iphonesimulator)"
 stage_slice tvos "$(prelink aarch64-apple-tvos arm64 tvos "$TVOS_DEPLOYMENT_TARGET" appletvos)"
 stage_slice tvos-sim \
     "$(prelink aarch64-apple-tvos-sim arm64 tvos-simulator "$TVOS_DEPLOYMENT_TARGET" appletvsimulator)"

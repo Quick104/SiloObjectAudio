@@ -11,10 +11,11 @@ decoded objects into a speaker bed and delivers it as Apple Positional Audio, wh
 Atmos receiver as Dolby MAT and iOS renders as Spatial Audio.
 
 The decoding is the [`truehd`](https://github.com/truehdd/truehdd) crate (Apache-2.0), pinned to
-an exact commit. Until [truehdd#42](https://github.com/truehdd/truehdd/pull/42) is merged that
-commit is in [a fork](https://github.com/superuser404notfound/truehdd): upstream plus that one
-change, which sizes the decoder's block and PCM buffers to the samples they hold (byte-identical
-output, about 30% less decode time). This repository adds the C API, an access-unit framer that reports where each
+an exact commit. Until it is merged upstream that commit is in
+[a fork](https://github.com/superuser404notfound/truehdd/tree/perf/harletty-block-decode):
+upstream plus [harletty's](https://github.com/harletty/truehdd/tree/fix/huffman-tree-build-memory)
+speed work on the decoder, which includes [truehdd#42](https://github.com/truehdd/truehdd/pull/42)
+(byte-identical output, about half the decode time of the unmodified crate). This repository adds the C API, an access-unit framer that reports where each
 decoded block sits in the input (needed to place audio on a timeline after a seek), OAMD update
 timing per ETSI TS 103 420 clause 5.3, and the Apple packaging.
 
@@ -88,8 +89,8 @@ so some of its update times are 32 frames earlier than this library's; the verif
 that difference.
 
 Measured on an M1, one thread, wall time through the C API (`cargo run --release --example
-decode_bench <file.thd>`): 29× realtime for Unfold's 16-element Atmos presentation, against 21×
-before truehdd#42.
+decode_bench <file.thd>`): 45× realtime for Unfold's 16-element Atmos presentation, against 29×
+with truehdd#42 alone and 21× before it.
 
 ## Limitations
 

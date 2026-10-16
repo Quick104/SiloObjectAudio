@@ -358,3 +358,23 @@ fn a_damaged_first_access_unit_is_counted() {
     let message = unsafe { std::ffi::CStr::from_ptr(truehd_atmos_decoder_last_error(d.0)) };
     assert!(!message.to_bytes().is_empty(), "damage must leave a message");
 }
+
+#[test]
+fn version_string_names_the_commit_notice_names() {
+    let version = unsafe { std::ffi::CStr::from_ptr(truehd_atmos_version_string()) }
+        .to_str()
+        .unwrap()
+        .to_owned();
+    let commit = version
+        .split("truehdd@")
+        .nth(1)
+        .and_then(|rest| rest.strip_suffix(')'))
+        .unwrap_or_else(|| panic!("no truehdd commit in {version:?}"));
+    assert_eq!(commit.len(), 12, "{version:?}");
+    let notice = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/NOTICE")).unwrap();
+    assert!(
+        notice.split_whitespace().any(|word| word.trim_end_matches(&[':', ',', '.'][..]).len() == 40
+            && word.starts_with(commit)),
+        "NOTICE does not name the truehdd commit in {version:?}"
+    );
+}

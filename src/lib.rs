@@ -20,7 +20,22 @@ pub struct TrueHDAtmosDecoder {
     _private: [u8; 0],
 }
 
-const VERSION: &std::ffi::CStr = c"truehd-atmos-ffi 0.1.0 (truehd 0.7.2, truehdd@45eff984e3e5)";
+const VERSION: &std::ffi::CStr = match std::ffi::CStr::from_bytes_with_nul(
+    concat!(
+        env!("CARGO_PKG_NAME"),
+        " ",
+        env!("CARGO_PKG_VERSION"),
+        " (truehd ",
+        env!("TRUEHD_CRATE_VERSION"),
+        ", truehdd@",
+        env!("TRUEHD_CRATE_COMMIT"),
+        ")\0"
+    )
+    .as_bytes(),
+) {
+    Ok(version) => version,
+    Err(_) => panic!("version string"),
+};
 
 fn engine_mut<'a>(handle: *mut TrueHDAtmosDecoder) -> Option<&'a mut Engine> {
     // SAFETY: the C contract is that a non-null handle came from create() and is used by one

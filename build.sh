@@ -79,7 +79,7 @@ mkdir -p "$STAGE_DIR/headers/TrueHD"
 cp include/truehd_atmos.h include/module.modulemap "$STAGE_DIR/headers/TrueHD/"
 printf '%s\n' '_truehd_atmos_*' '_rust_eh_personality' >"$STAGE_DIR/exported_symbols"
 
-# Kept in step with LibDTSX's copy: a change here goes into both repositories.
+# LibDTSX used to share these steps; since its 2.0.0 it ships a dynamic framework and needs none of them.
 # weaken <object> <symbol>: sets N_WEAK_DEF on the one external definition of <symbol> in a thin
 # 64-bit Mach-O object. Neither ld -r nor strip can do this, and Xcode ships no objcopy.
 weaken() {
